@@ -10,5 +10,6 @@ libraryDependencies ++= Seq(
   "org.twitter4j" % "twitter4j-stream" % "4.0.4",
   "com.typesafe" % "config" % "1.3.2",
   "com.twitter" % "bijection-core_2.11" % "0.9.5",
-  "com.twitter" % "bijection-avro_2.11" % "0.9.5"
+  "com.twitter" % "bijection-avro_2.11" % "0.9.5",
+  "com.github.scopt" %% "scopt" % "3.5.0"
 )
