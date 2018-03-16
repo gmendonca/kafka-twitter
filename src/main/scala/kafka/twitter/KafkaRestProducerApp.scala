@@ -47,9 +47,9 @@ object KafkaRestProducerApp {
 
   private def sendToKafkaRest(t:Tweet, topic: String, url: String) = {
     val tweetEnc = toBinary[Tweet].apply(t)
-    Http(url + s"/topics/$topic")
-      .headers(Seq("Content-Type" -> "application/vnd.kafka.avro.v2+json", "Accept" -> "application/vnd.kafka.v2+json"))
-      .postData(tweetEnc)
-    println(toJson(t.getSchema).apply(t))
+    println(Http(url + s"/topics/$topic")
+      .headers(Seq("Content-Type" -> "application/vnd.kafka.json.v2+json", "Accept" -> "application/vnd.kafka.v2+json"))
+      .postData(tweetEnc).asString)
+    println(toJson(t.getSchema).apply(t)) 
   }
 }
