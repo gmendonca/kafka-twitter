@@ -11,5 +11,8 @@ libraryDependencies ++= Seq(
   "com.typesafe" % "config" % "1.3.2",
   "com.twitter" % "bijection-core_2.11" % "0.9.5",
   "com.twitter" % "bijection-avro_2.11" % "0.9.5",
-  "com.github.scopt" %% "scopt" % "3.5.0"
+  "com.github.scopt" %% "scopt" % "3.5.0",
+  "com.typesafe.akka" %% "akka-actor" % "2.5.11",
+  "com.typesafe.akka" %% "akka-stream" % "2.5.11",
+  "org.scalaj" %% "scalaj-http" % "2.3.0"
 )

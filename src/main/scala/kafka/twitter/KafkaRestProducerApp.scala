@@ -1,31 +1,22 @@
 package kafka.twitter
 
-import java.util.Properties
 import com.twitter.bijection.avro.SpecificAvroCodecs.{toBinary, toJson}
 import com.typesafe.config.ConfigFactory
 import kafka.twitter.TwitterConnector.OnTweetPosted
 import kafka.twitter.avro.Tweet
-import org.apache.kafka.clients.producer.{KafkaProducer, ProducerRecord}
 import twitter4j.{FilterQuery, Status}
+import scalaj.http._
 
-object KafkaProducerApp {
+object KafkaRestProducerApp {
 
   private val conf = ConfigFactory.load()
-
-  val kafkaProducer: KafkaProducer[String, Array[Byte]] = {
-    val props = new Properties()
-    props.put("bootstrap.servers", conf.getString("kafka.brokers"))
-    props.put("request.required.acks", "1")
-    props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer")
-    props.put("value.serializer", "org.apache.kafka.common.serialization.ByteArraySerializer")
-    new KafkaProducer[String, Array[Byte]](props)
-  }
 
   val filterUsOnly: FilterQuery = new FilterQuery().locations(
     Array(-126.562500,30.448674),
     Array(-61.171875,44.087585))
 
   case class Config(topic: String = "tweets",
+                    url: String = "tweets",
                     debug: Boolean = false)
 
   def main (args: Array[String]) {
@@ -37,11 +28,15 @@ object KafkaProducerApp {
         c.copy(topic = x)
       } text "Kafka topic name to produce to it"
 
+      opt[String]('u', "url") action { (x, c) =>
+        c.copy(url = x)
+      } text "Kafka rest url to post events"
+
       help("help").text("prints this usage text")
     }
     parser.parse(args, Config()) foreach { config =>
       val twitterStream = TwitterConnector.getStream
-      twitterStream.addListener(new OnTweetPosted(s => sendToKafka(toTweet(s), config.topic)))
+      twitterStream.addListener(new OnTweetPosted(s => sendToKafkaRest(toTweet(s), config.topic, config.url)))
       twitterStream.filter(filterUsOnly)
     }
   }
@@ -50,10 +45,11 @@ object KafkaProducerApp {
     new Tweet(s.getUser.getName, s.getText)
   }
 
-  private def sendToKafka(t:Tweet, topic: String) = {
+  private def sendToKafkaRest(t:Tweet, topic: String, url: String) = {
     val tweetEnc = toBinary[Tweet].apply(t)
-    val msg = new ProducerRecord[String, Array[Byte]](topic, tweetEnc)
-    kafkaProducer.send(msg)
+    Http(url + s"/topics/$topic")
+      .headers(Seq("Content-Type" -> "application/vnd.kafka.avro.v2+json", "Accept" -> "application/vnd.kafka.v2+json"))
+      .postData(tweetEnc)
     println(toJson(t.getSchema).apply(t))
   }
 }
