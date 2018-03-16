@@ -14,6 +14,5 @@ libraryDependencies ++= Seq(
   "com.github.scopt" %% "scopt" % "3.5.0",
   "com.typesafe.akka" %% "akka-actor" % "2.5.11",
   "com.typesafe.akka" %% "akka-stream" % "2.5.11",
-  "org.scalaj" %% "scalaj-http" % "2.3.0",
-  "org.json4s" %% "json4s-jackson" % "3.5.3"
+  "org.scalaj" %% "scalaj-http" % "2.3.0"
 )

@@ -6,9 +6,6 @@ import kafka.twitter.TwitterConnector.OnTweetPosted
 import kafka.twitter.avro.Tweet
 import twitter4j.{FilterQuery, Status}
 import scalaj.http._
-import org.json4s._
-import org.json4s.jackson.JsonMethods._
-import org.json4s.JsonDSL._
 
 object KafkaRestProducerApp {
 
@@ -51,15 +48,14 @@ object KafkaRestProducerApp {
   private def sendToKafkaRest(t:Tweet, topic: String, url: String) = {
     val tweetEnc = toBinary[Tweet].apply(t)
 
-    implicit val formats = DefaultFormats
+    val tweet_json = toJson(t.getSchema).apply(t)
 
-    val tweet_json = parse(toJson(t.getSchema).apply(t))
-
-    val json = ("records" -> List(("value" -> tweet_json)))
+    val before = "{\"records\":[{\"value\":"
+    val after = "}]}"
 
     println(Http(url + s"/topics/$topic")
       .headers(Seq("Content-Type" -> "application/vnd.kafka.json.v2+json", "Accept" -> "application/vnd.kafka.v2+json"))
-      .postData(compact(render(json))).asString)
-    println(toJson(t.getSchema).apply(t))
+      .postData(before + tweet_json + after).asString)
+    println(tweet_json)
   }
 }
