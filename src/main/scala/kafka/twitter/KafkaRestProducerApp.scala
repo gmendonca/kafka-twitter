@@ -49,7 +49,7 @@ object KafkaRestProducerApp {
     val tweetEnc = toBinary[Tweet].apply(t)
     println(Http(url + s"/topics/$topic")
       .headers(Seq("Content-Type" -> "application/vnd.kafka.json.v2+json", "Accept" -> "application/vnd.kafka.v2+json"))
-      .postData(tweetEnc).asString)
-    println(toJson(t.getSchema).apply(t)) 
+      .postData(toJson(t.getSchema).apply(t)).asString)
+    println(toJson(t.getSchema).apply(t))
   }
 }
