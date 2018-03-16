@@ -8,6 +8,7 @@ import twitter4j.{FilterQuery, Status}
 import scalaj.http._
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
+import org.json4s.JsonDSL._
 
 object KafkaRestProducerApp {
 
